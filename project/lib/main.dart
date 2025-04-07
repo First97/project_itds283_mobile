@@ -8,8 +8,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'First Queue App',
       theme: ThemeData(
+        fontFamily: 'Kanit',
         primarySwatch: Colors.orange,
       ),
       home: AuthScreen(),
@@ -25,114 +27,123 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   bool isLogin = true;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFFEDAB5),
-      body: Center(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey.shade200,
+    body: SafeArea(
+      child: SingleChildScrollView(
         child: Container(
-          width: 350,
-          padding: EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Color(0xFFFFF6EF),
-            borderRadius: BorderRadius.circular(30),
-          ),
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          color: Color(0xFFFFE0B2),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset('assets/logo.png', height: 100), // ใช้โลโก้ตาม Figma
-              SizedBox(height: 16),
+              SizedBox(height: 24),
+              Image.asset('assets/logo.png', height: 250),
+              SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () => setState(() => isLogin = true),
-                    child: Column(
-                      children: [
-                        Text(
-                          'เข้าสู่ระบบ',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: isLogin ? FontWeight.bold : FontWeight.normal,
-                            color: isLogin ? Colors.deepOrange : Colors.black,
-                          ),
-                        ),
-                        if (isLogin)
-                          Container(
-                            height: 2,
-                            width: 60,
-                            color: Colors.deepOrange,
-                            margin: EdgeInsets.only(top: 4),
-                          )
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: () => setState(() => isLogin = false),
-                    child: Column(
-                      children: [
-                        Text(
-                          'ลงทะเบียน',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: !isLogin ? FontWeight.bold : FontWeight.normal,
-                            color: !isLogin ? Colors.deepOrange : Colors.black,
-                          ),
-                        ),
-                        if (!isLogin)
-                          Container(
-                            height: 2,
-                            width: 60,
-                            color: Colors.deepOrange,
-                            margin: EdgeInsets.only(top: 4),
-                          )
-                      ],
-                    ),
-                  ),
+                  _buildTab('เข้าสู่ระบบ', isLogin, () {
+                    setState(() => isLogin = true);
+                  }),
+                  SizedBox(width: 24),
+                  _buildTab('ลงทะเบียน', !isLogin, () {
+                    setState(() => isLogin = false);
+                  }),
                 ],
               ),
-              SizedBox(height: 24),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'อีเมล์',
-                  hintText: 'โปรดใส่อีเมลของท่าน',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              SizedBox(height: 32),
+              _buildTextField('อีเมล์', 'โปรดใส่อีเมลของท่าน'),
               SizedBox(height: 16),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'รหัสผ่าน',
-                  hintText: 'โปรดใส่รหัสผ่านของท่าน',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              _buildTextField('รหัสผ่าน', 'โปรดใส่รหัสผ่านของท่าน', obscure: true),
               if (!isLogin) ...[
                 SizedBox(height: 16),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'ยืนยันรหัสผ่าน',
-                    hintText: 'โปรดใส่รหัสผ่านของท่านอีกครั้ง',
-                    border: OutlineInputBorder(),
+                _buildTextField('ยืนยันรหัสผ่าน', 'โปรดใส่รหัสผ่านของท่านอีกครั้ง', obscure: true),
+              ],
+              SizedBox(height: 32),
+              SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      foregroundColor: Colors.white, // << เพิ่มบรรทัดนี้!
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: Text(
+                      isLogin ? 'เข้าสู่ระบบ' : 'ลงทะเบียน',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // ย้ำชัดเจนอีกครั้ง
+                      ),
+                    ),
                   ),
                 ),
-              ],
-              SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  minimumSize: Size(double.infinity, 50),
-                ),
-                child: Text(isLogin ? 'เข้าสู่ระบบ' : 'ลงทะเบียน'),
-              ),
             ],
           ),
         ),
       ),
+    ),
+  );
+}
+
+  Widget _buildTab(String title, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              color: selected ? Colors.deepOrange : Colors.black,
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          if (selected)
+            Container(
+              margin: EdgeInsets.only(top: 4),
+              height: 2,
+              width: 60,
+              color: Colors.deepOrange,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, String hint, {bool obscure = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.black87,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 6),
+        TextField(
+          obscureText: obscure,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: const Color.fromARGB(255, 255, 255, 255),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+      ],
     );
   }
 }
