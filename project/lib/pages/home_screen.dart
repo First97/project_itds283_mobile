@@ -1,38 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFE8933C),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFFD9652B),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFFD9652B),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          currentIndex: _currentIndex,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.qr_code_scanner),
+              label: 'Scan',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Column(
+          children: [
+            // 🔶 แถบบนสุด (มีแค่ปุ่มแจ้งเตือน ไม่มีมุมโค้ง)
+            Container(
+              height: 70,
+              width: double.infinity,
+              color: Color(0xFFD9652B), // สีส้มแดง
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      // handle notification
+                    },
+                  ),
+                ],
+              ),
+            ),
+            // 🔶 แถบชื่อ + โปรไฟล์
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -48,94 +92,118 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+
+            // 🔶 เนื้อหาหลัก
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ListView(
                   children: [
-                    Center(
-                      child: Text(
-                        'ยังไม่มีการจองคิว',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                    // 🔶 การ์ดจองคิว
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'ยังไม่มีการจองคิว',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 50),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Column(
+                                children: [
+                                  Text('หมายเลขคิวของฉัน'),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '-',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Text('รออีก'),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '-',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.black,
+                                ),
+                                child: Icon(
+                                  Icons.location_pin,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text('-'),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          children: [
-                            Text('หมายเลขคิวของฉัน'),
-                            SizedBox(height: 4),
-                            Text(
-                              '-',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text('รออีก'),
-                            SizedBox(height: 4),
-                            Text(
-                              '-',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12),
+                    SizedBox(height: 20),
+
+                    // 🔶 เมนู 2 ช่อง
                     Row(
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black,
+                        Expanded(
+                          child: _menuBox(
+                            icon: Icons.location_on,
+                            label: 'ร้านอาหารใกล้ฉัน',
+                            iconSize: 150,
                           ),
-                          child: Icon(Icons.location_pin, color: Colors.white),
                         ),
-                        SizedBox(width: 8),
-                        Text('-'),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: _menuBox(
+                            icon: Icons.access_time,
+                            label: 'ประวัติการจองคิว',
+                            iconSize: 150,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: _menuBox(
-                      icon: Icons.location_on,
-                      label: 'ร้านอาหารใกล้ฉัน',
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: _menuBox(
-                      icon: Icons.access_time,
-                      label: 'ประวัติการจองคิว',
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _menuBox({required IconData icon, required String label}) {
+  Widget _menuBox({
+    required IconData icon,
+    required String label,
+    double iconSize = 50,
+  }) {
     return Container(
+      height: 350, // <<< เพิ่มความสูงเข้าไป
       padding: EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -143,10 +211,15 @@ class HomeScreen extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 50, color: Color(0xFFD9652B)),
+          Icon(icon, size: iconSize, color: Color(0xFFD9652B)),
           SizedBox(height: 12),
-          Text(label, style: TextStyle(fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );

@@ -89,10 +89,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           MaterialPageRoute(builder: (context) => HomeScreen()),
                         );
                       } else {
+                        setState(() => isLogin = true);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('ยังไม่ได้เชื่อมหน้าลงทะเบียน'),
-                          ),
+                          SnackBar(content: Text('สมัครสมาชิกสำเร็จ!')),
                         );
                       }
                     },
