@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/pages/home_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,10 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'First Queue App',
-      theme: ThemeData(
-        fontFamily: 'Kanit',
-        primarySwatch: Colors.orange,
-      ),
+      theme: ThemeData(fontFamily: 'Kanit', primarySwatch: Colors.orange),
       home: AuthScreen(),
     );
   }
@@ -27,45 +25,53 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   bool isLogin = true;
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey.shade200,
-    body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          color: Color(0xFFFFE0B2),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: 24),
-              Image.asset('assets/logo.png', height: 250),
-              SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildTab('เข้าสู่ระบบ', isLogin, () {
-                    setState(() => isLogin = true);
-                  }),
-                  SizedBox(width: 24),
-                  _buildTab('ลงทะเบียน', !isLogin, () {
-                    setState(() => isLogin = false);
-                  }),
-                ],
-              ),
-              SizedBox(height: 32),
-              _buildTextField('อีเมล์', 'โปรดใส่อีเมลของท่าน'),
-              SizedBox(height: 16),
-              _buildTextField('รหัสผ่าน', 'โปรดใส่รหัสผ่านของท่าน', obscure: true),
-              if (!isLogin) ...[
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade200,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height,
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            color: Color(0xFFFFE0B2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 24),
+                Image.asset('assets/logo.png', height: 250),
+                SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildTab('เข้าสู่ระบบ', isLogin, () {
+                      setState(() => isLogin = true);
+                    }),
+                    SizedBox(width: 24),
+                    _buildTab('ลงทะเบียน', !isLogin, () {
+                      setState(() => isLogin = false);
+                    }),
+                  ],
+                ),
+                SizedBox(height: 32),
+                _buildTextField('อีเมล์', 'โปรดใส่อีเมลของท่าน'),
                 SizedBox(height: 16),
-                _buildTextField('ยืนยันรหัสผ่าน', 'โปรดใส่รหัสผ่านของท่านอีกครั้ง', obscure: true),
-              ],
-              SizedBox(height: 32),
-              SizedBox(
+                _buildTextField(
+                  'รหัสผ่าน',
+                  'โปรดใส่รหัสผ่านของท่าน',
+                  obscure: true,
+                ),
+                if (!isLogin) ...[
+                  SizedBox(height: 16),
+                  _buildTextField(
+                    'ยืนยันรหัสผ่าน',
+                    'โปรดใส่รหัสผ่านของท่านอีกครั้ง',
+                    obscure: true,
+                  ),
+                ],
+                SizedBox(height: 32),
+                SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
@@ -76,7 +82,20 @@ Widget build(BuildContext context) {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      if (isLogin) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('ยังไม่ได้เชื่อมหน้าลงทะเบียน'),
+                          ),
+                        );
+                      }
+                    },
                     child: Text(
                       isLogin ? 'เข้าสู่ระบบ' : 'ลงทะเบียน',
                       style: TextStyle(
@@ -87,13 +106,13 @@ Widget build(BuildContext context) {
                     ),
                   ),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildTab(String title, bool selected, VoidCallback onTap) {
     return GestureDetector(
