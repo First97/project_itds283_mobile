@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:project/pages/my_notqueue.dart';
+import 'package:project/pages/nearby_restaurants.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -56,24 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔶 แถบบนสุด (มีแค่ปุ่มแจ้งเตือน ไม่มีมุมโค้ง)
+            // 🔶 แถบบนสุด
             Container(
-              height: 70,
+              height: 60,
               width: double.infinity,
-              color: Color(0xFFD9652B), // สีส้มแดง
+              color: Color(0xFFD9652B),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
                     icon: Icon(Icons.notifications, color: Colors.white),
-                    onPressed: () {
-                      // handle notification
-                    },
+                    onPressed: () {},
                   ),
                 ],
               ),
             ),
-            // 🔶 แถบชื่อ + โปรไฟล์
+
+            // 🔶 แถบชื่อ + รูปโปรไฟล์
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -100,81 +101,100 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView(
                   children: [
-                    // 🔶 การ์ดจองคิว
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'ยังไม่มีการจองคิว',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 50),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                children: [
-                                  Text('หมายเลขคิวของฉัน'),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '-',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                    // 🔶 การ์ดจองคิว (กดได้ทั้งกล่อง)
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => MyNotqueue()),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'ยังไม่มีการจองคิว',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 50),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text('หมายเลขคิวของฉัน'),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      '-',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text('รออีก'),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '-',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text('รออีก'),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      '-',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.black,
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.black,
+                                  child: Icon(
+                                    Icons.location_pin,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                child: Icon(
-                                  Icons.location_pin,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Text('-'),
-                            ],
-                          ),
-                        ],
+                                SizedBox(width: 8),
+                                Text('-'),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+
                     SizedBox(height: 20),
 
                     // 🔶 เมนู 2 ช่อง
                     Row(
                       children: [
                         Expanded(
-                          child: _menuBox(
-                            icon: Icons.location_on,
-                            label: 'ร้านอาหารใกล้ฉัน',
-                            iconSize: 150,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => NearbyRestaurants(),
+                                ),
+                              );
+                            },
+                            child: _menuBox(
+                              icon: Icons.location_on,
+                              label: 'ร้านอาหารใกล้ฉัน',
+                              iconSize: 150,
+                            ),
                           ),
                         ),
                         SizedBox(width: 16),
@@ -203,14 +223,13 @@ class _HomeScreenState extends State<HomeScreen> {
     double iconSize = 50,
   }) {
     return Container(
-      height: 350, // <<< เพิ่มความสูงเข้าไป
+      height: 350,
       padding: EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, size: iconSize, color: Color(0xFFD9652B)),
