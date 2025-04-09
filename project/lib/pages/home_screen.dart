@@ -6,7 +6,7 @@ import 'package:project/pages/search_screen.dart';
 import 'package:project/pages/booking_history.dart';
 import 'package:project/pages/promotion_screen.dart';
 import 'package:project/pages/settings_screen.dart';
-import 'package:project/pages/notification_screen.dart'; // ✅ เพิ่มการนำเข้าหน้าการแจ้งเตือน
+import 'package:project/pages/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔶 Header with Notification Button
+            // 🔶 Header with Notification
             Container(
               height: 60,
               width: double.infinity,
@@ -94,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+
             // 🔶 Name & Profile
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -114,13 +115,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+
             // 🔶 Main Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView(
                   children: [
-                    // 🔶 My Queue Card
+                    // 🔸 My Queue Card
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -134,64 +136,90 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Column(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'ยังไม่มีการจองคิว',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            // คอลัมน์ซ้ายเผื่อไว้ใส่รูป
+                            Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(Icons.image, color: Colors.grey),
                             ),
-                            const SizedBox(height: 50),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: const [
-                                Column(
-                                  children: [
-                                    Text('หมายเลขคิวของฉัน'),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      '-',
+                            const SizedBox(width: 16),
+                            // คอลัมน์ขวา ข้อมูลคิว
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Center(
+                                    child: Text(
+                                      'ยังไม่มีการจองคิว',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text('รออีก'),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      '-',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: const [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: Colors.black,
-                                  child: Icon(
-                                    Icons.location_pin,
-                                    color: Colors.white,
-                                    size: 20,
                                   ),
-                                ),
-                                SizedBox(width: 8),
-                                Text('-'),
-                              ],
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: const [
+                                      Column(
+                                        children: [
+                                          Text('หมายเลขคิวของฉัน'),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            '-',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text('รออีก'),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            '-',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: const [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: Colors.black,
+                                        child: Icon(
+                                          Icons.location_pin,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('-'),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // 🔶 Menu Boxes
+
+                    // 🔸 เมนูร้านอาหารใกล้ฉัน & ประวัติการจอง
                     Row(
                       children: [
                         Expanded(
