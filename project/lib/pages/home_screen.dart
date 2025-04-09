@@ -3,7 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:project/pages/my_notqueue.dart';
 import 'package:project/pages/nearby_restaurants.dart';
 import 'package:project/pages/search_screen.dart';
-import 'package:project/pages/booking_history.dart'; // ✅ เพิ่มตรงนี้
+import 'package:project/pages/booking_history.dart';
+import 'package:project/pages/promotion_screen.dart';
+import 'package:project/pages/settings_screen.dart';
+import 'package:project/pages/notification_screen.dart'; // ✅ เพิ่มการนำเข้าหน้าการแจ้งเตือน
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -16,9 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE8933C),
+      backgroundColor: const Color(0xFFE8933C),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Color(0xFFD9652B),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24),
@@ -43,7 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
             } else if (index == 3) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => BookingHistory()),
+                MaterialPageRoute(builder: (_) => PromotionScreen()),
+              );
+            } else if (index == 4) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => SettingsScreen()),
               );
             } else {
               setState(() {
@@ -52,40 +60,41 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           },
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
             BottomNavigationBarItem(
               icon: Icon(Icons.qr_code_scanner),
-              label: 'Scan',
+              label: '',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: 'History',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.sell), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
           ],
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
+            // 🔶 Header with Notification Button
             Container(
               height: 60,
               width: double.infinity,
-              color: Color(0xFFD9652B),
+              color: const Color(0xFFD9652B),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.notifications, color: Colors.white),
-                    onPressed: () {},
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => NotificationScreen()),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
+            // 🔶 Name & Profile
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -98,18 +107,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 28,
                     backgroundImage: AssetImage('assets/profile.jpg'),
                   ),
                 ],
               ),
             ),
+            // 🔶 Main Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView(
                   children: [
+                    // 🔶 My Queue Card
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -118,22 +129,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                       child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
                           children: [
-                            Text(
+                            const Text(
                               'ยังไม่มีการจองคิว',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(height: 50),
+                            const SizedBox(height: 50),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
+                              children: const [
                                 Column(
                                   children: [
                                     Text('หมายเลขคิวของฉัน'),
@@ -160,18 +170,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.black,
-                                  ),
+                              children: const [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: Colors.black,
                                   child: Icon(
                                     Icons.location_pin,
                                     color: Colors.white,
+                                    size: 20,
                                   ),
                                 ),
                                 SizedBox(width: 8),
@@ -182,7 +190,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
+                    // 🔶 Menu Boxes
                     Row(
                       children: [
                         Expanded(
@@ -202,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
@@ -239,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return Container(
       height: 350,
-      padding: EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -247,12 +256,12 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: iconSize, color: Color(0xFFD9652B)),
-          SizedBox(height: 12),
+          Icon(icon, size: iconSize, color: const Color(0xFFD9652B)),
+          const SizedBox(height: 12),
           Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w500),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         ],
       ),

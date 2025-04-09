@@ -49,28 +49,55 @@ class BookingHistory extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(12),
-              leading: Image.asset(item['logo']!, width: 50, height: 50),
-              title: Text(
-                item['restaurant']!,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
                 children: [
-                  Text(item['status']!),
-                  Text('สาขา ${item['branch']}'),
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_today, size: 16),
-                      SizedBox(width: 4),
-                      Text(item['date']!),
-                      SizedBox(width: 16),
-                      Icon(Icons.access_time, size: 16),
-                      SizedBox(width: 4),
-                      Text(item['time']!),
-                    ],
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      item['logo'] ?? '',
+                      width: 50,
+                      height: 50,
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              Icon(Icons.broken_image, size: 50),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['restaurant'] ?? '',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 4),
+                        Text(item['status'] ?? ''),
+                        Text('สาขา ${item['branch']}'),
+                        SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: Colors.grey[700],
+                            ),
+                            SizedBox(width: 4),
+                            Text(item['date'] ?? ''),
+                            SizedBox(width: 16),
+                            Icon(
+                              Icons.access_time,
+                              size: 16,
+                              color: Colors.grey[700],
+                            ),
+                            SizedBox(width: 4),
+                            Text(item['time'] ?? ''),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
