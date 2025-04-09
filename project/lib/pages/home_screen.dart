@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/pages/my_notqueue.dart';
 import 'package:project/pages/nearby_restaurants.dart';
+import 'package:project/pages/search_screen.dart';
+import 'package:project/pages/booking_history.dart'; // ✅ เพิ่มตรงนี้
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -33,9 +35,21 @@ class _HomeScreenState extends State<HomeScreen> {
           showSelectedLabels: false,
           showUnselectedLabels: false,
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
+            if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => SearchScreen()),
+              );
+            } else if (index == 3) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BookingHistory()),
+              );
+            } else {
+              setState(() {
+                _currentIndex = index;
+              });
+            }
           },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -58,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔶 แถบบนสุด
             Container(
               height: 60,
               width: double.infinity,
@@ -73,8 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
-            // 🔶 แถบชื่อ + รูปโปรไฟล์
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -94,14 +105,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
-            // 🔶 เนื้อหาหลัก
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView(
                   children: [
-                    // 🔶 การ์ดจองคิว (กดได้ทั้งกล่อง)
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -174,10 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-
                     SizedBox(height: 20),
-
-                    // 🔶 เมนู 2 ช่อง
                     Row(
                       children: [
                         Expanded(
@@ -199,10 +204,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(width: 16),
                         Expanded(
-                          child: _menuBox(
-                            icon: Icons.access_time,
-                            label: 'ประวัติการจองคิว',
-                            iconSize: 150,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BookingHistory(),
+                                ),
+                              );
+                            },
+                            child: _menuBox(
+                              icon: Icons.access_time,
+                              label: 'ประวัติการจองคิว',
+                              iconSize: 150,
+                            ),
                           ),
                         ),
                       ],
