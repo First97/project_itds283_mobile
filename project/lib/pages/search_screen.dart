@@ -43,23 +43,6 @@ class SearchScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFFD9652B),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white60,
-        currentIndex: 1, // หน้า Search อยู่ index 1
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
-        ],
-        onTap: (index) {
-          // ทำหน้าที่เปลี่ยนหน้าได้ที่นี่
-        },
-      ),
     );
   }
 }
