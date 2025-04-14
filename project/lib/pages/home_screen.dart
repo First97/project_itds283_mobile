@@ -1,4 +1,3 @@
-// ... ส่วน import เหมือนเดิม
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +11,7 @@ import 'package:project/pages/booking_history.dart';
 import 'package:project/pages/promotion_screen.dart';
 import 'package:project/pages/settings_screen.dart';
 import 'package:project/pages/notification_screen.dart';
+import 'package:project/pages/qr_scan_screen.dart'; // ✅ เพิ่มให้พาไปหน้า QR
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -50,6 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => SearchScreen()),
+              );
+            } else if (index == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => QRScanScreen()),
               );
             } else if (index == 3) {
               Navigator.push(
@@ -192,6 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  // ส่วนอื่นไม่แตะเลย เพราะเพื่อนสั่งมาเป๊ะๆ ❤️
 
   Widget _buildNoQueueCard() {
     return GestureDetector(
