@@ -4,7 +4,6 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'pages/auth_screen.dart';
 import 'pages/home_screen.dart'; // ✅ เรียกใช้งาน HomeScreen
-import 'pages/nearby_restaurants.dart';
 import 'pages/my_queue_page.dart';
 import 'pages/settings_screen.dart';
 

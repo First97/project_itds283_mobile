@@ -51,6 +51,9 @@ class MyQueuePage extends StatelessWidget {
           final queueDoc = snapshot.data!.docs.first;
           final data = queueDoc.data() as Map<String, dynamic>;
 
+          // ✅ ตรวจสอบและสร้างแจ้งเตือน + ประวัติการจองทันทีหากยังไม่เคยบันทึก
+          createAutoNotificationAndHistory(data);
+
           final date = DateTime.parse(data['timestamp']);
           final formattedDate = DateFormat('dd MMM yyyy', 'th_TH').format(date);
           final formattedTime = DateFormat('HH:mm:ss น.', 'th_TH').format(date);
@@ -138,12 +141,29 @@ class MyQueuePage extends StatelessWidget {
                                 .doc(queueDoc.id)
                                 .delete();
 
+                            await createNotification(
+                              uid: user.uid,
+                              restaurant: data['restaurantName'],
+                              logo: data['logo'],
+                              branch: data['location'],
+                              status: 'cancelled',
+                              queueId: data['queueId'],
+                            );
+
+                            await createHistory(
+                              uid: user.uid,
+                              restaurant: data['restaurantName'],
+                              logo: data['logo'],
+                              branch: data['location'],
+                              status: 'ยกเลิกคิว',
+                            );
+
                             await Future.delayed(
                               const Duration(milliseconds: 300),
                             );
 
                             if (context.mounted) {
-                              Navigator.of(context).pop(); // ปิด dialog
+                              Navigator.of(context).pop();
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -177,5 +197,108 @@ class MyQueuePage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> createAutoNotificationAndHistory(
+    Map<String, dynamic> data,
+  ) async {
+    final uid = data['uid'];
+    final queueId = data['queueId'];
+
+    final timestamp = data['timestamp'];
+    final dateTime = DateTime.parse(timestamp);
+
+    final historyExist =
+        await FirebaseFirestore.instance
+            .collection('history')
+            .where('uid', isEqualTo: uid)
+            .where('queueId', isEqualTo: queueId)
+            .where('status', isEqualTo: 'จองคิวสำเร็จ')
+            .limit(1)
+            .get();
+
+    if (historyExist.docs.isEmpty) {
+      await createHistory(
+        uid: uid,
+        restaurant: data['restaurantName'],
+        logo: data['logo'],
+        branch: data['location'],
+        status: 'จองคิวสำเร็จ',
+        timestamp: dateTime,
+        queueId: queueId,
+      );
+    }
+
+    final int remainingQueue =
+        int.tryParse(data['queue'].toString().replaceAll(RegExp(r'\D'), '')) ??
+        999;
+
+    if (remainingQueue > 3) return;
+    final status = remainingQueue == 0 ? 'ready' : 'coming';
+
+    final existingNotify =
+        await FirebaseFirestore.instance
+            .collection('notifications')
+            .where('uid', isEqualTo: uid)
+            .where('queueId', isEqualTo: queueId)
+            .where('status', isEqualTo: status)
+            .limit(1)
+            .get();
+
+    if (existingNotify.docs.isEmpty) {
+      await createNotification(
+        uid: uid,
+        restaurant: data['restaurantName'],
+        logo: data['logo'],
+        branch: data['location'],
+        status: status,
+        queueId: queueId,
+      );
+    }
+  }
+
+  Future<void> createNotification({
+    required String uid,
+    required String restaurant,
+    required String logo,
+    required String branch,
+    required String status,
+    required String queueId,
+  }) async {
+    final now = DateTime.now();
+    await FirebaseFirestore.instance.collection('notifications').add({
+      'uid': uid,
+      'restaurant': restaurant,
+      'logo': logo,
+      'branch': branch,
+      'status': status,
+      'queueId': queueId,
+      'timestamp': Timestamp.fromDate(now),
+      'date': DateFormat('dd MMM yyyy', 'th_TH').format(now),
+      'time': DateFormat('HH:mm:ss น.', 'th_TH').format(now),
+    });
+  }
+
+  Future<void> createHistory({
+    required String uid,
+    required String restaurant,
+    required String logo,
+    required String branch,
+    required String status,
+    DateTime? timestamp,
+    String? queueId,
+  }) async {
+    final now = timestamp ?? DateTime.now();
+    await FirebaseFirestore.instance.collection('history').add({
+      'uid': uid,
+      'restaurant': restaurant,
+      'logo': logo,
+      'branch': branch,
+      'status': status,
+      'queueId': queueId ?? '',
+      'timestamp': Timestamp.fromDate(now),
+      'date': DateFormat('dd MMM yyyy', 'th_TH').format(now),
+      'time': DateFormat('HH:mm:ss น.', 'th_TH').format(now),
+    });
   }
 }

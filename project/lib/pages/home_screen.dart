@@ -296,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -311,6 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     data['restaurantName'],
@@ -335,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const Text('รออีก'),
                           const SizedBox(height: 4),
                           Text(
-                            '${data['queue']} คิว',
+                            '${data['queue']}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
