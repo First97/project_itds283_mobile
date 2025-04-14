@@ -33,7 +33,6 @@ class _BookingPageState extends State<BookingPage> {
     int current = counterSnap.exists ? (counterSnap['current'] ?? 0) : 0;
     current += 1;
     final queueNumber = 'A${current.toString().padLeft(3, '0')}';
-
     final now = DateTime.now();
 
     await FirebaseFirestore.instance.collection('queues').add({
@@ -99,11 +98,16 @@ class _BookingPageState extends State<BookingPage> {
                         ),
                         const SizedBox(height: 4),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Icon(Icons.location_on, size: 16),
                             const SizedBox(width: 4),
-                            Text(
-                              '${data['location']} ห่างจากคุณ ${data['distance']}',
+                            Expanded(
+                              child: Text(
+                                '${data['location']} ห่างจากคุณ ${data['distance']}',
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                              ),
                             ),
                           ],
                         ),

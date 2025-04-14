@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:project/pages/home_screen.dart';
 
 class MyQueuePage extends StatelessWidget {
   const MyQueuePage({super.key});
@@ -35,7 +36,16 @@ class MyQueuePage extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('คุณยังไม่มีคิว'));
+            return const Center(
+              child: Text(
+                'ยังไม่มีการจองคิว',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
           }
 
           final queueDoc = snapshot.data!.docs.first;
@@ -43,7 +53,7 @@ class MyQueuePage extends StatelessWidget {
 
           final date = DateTime.parse(data['timestamp']);
           final formattedDate = DateFormat('dd MMM yyyy', 'th_TH').format(date);
-          final formattedTime = DateFormat('HH:mm:ss น.').format(date);
+          final formattedTime = DateFormat('HH:mm:ss น.', 'th_TH').format(date);
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -92,8 +102,11 @@ class MyQueuePage extends StatelessWidget {
                         children: [
                           const Icon(Icons.location_on),
                           const SizedBox(width: 4),
-                          Text(
-                            '${data['location']} ห่างจากคุณ ${data['distance']}',
+                          Expanded(
+                            child: Text(
+                              '${data['location']} ห่างจากคุณ ${data['distance']}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -110,16 +123,42 @@ class MyQueuePage extends StatelessWidget {
                       const Divider(height: 24, color: Color(0xFFF89733)),
                       ElevatedButton(
                         onPressed: () async {
-                          await FirebaseFirestore.instance
-                              .collection('queues')
-                              .doc(queueDoc.id)
-                              .delete();
-                          if (!context.mounted) return;
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/home',
-                            (_) => false,
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder:
+                                (_) => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
                           );
+
+                          try {
+                            await FirebaseFirestore.instance
+                                .collection('queues')
+                                .doc(queueDoc.id)
+                                .delete();
+
+                            await Future.delayed(
+                              const Duration(milliseconds: 300),
+                            );
+
+                            if (context.mounted) {
+                              Navigator.of(context).pop(); // ปิด dialog
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const HomeScreen(),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                              );
+                            }
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,

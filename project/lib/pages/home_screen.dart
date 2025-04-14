@@ -1,5 +1,10 @@
+// ... ส่วน import เหมือนเดิม
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:project/pages/my_queue_page.dart'; // ✅ เพิ่ม
 import 'package:project/pages/my_notqueue.dart';
 import 'package:project/pages/nearby_restaurants.dart';
 import 'package:project/pages/search_screen.dart';
@@ -9,6 +14,7 @@ import 'package:project/pages/settings_screen.dart';
 import 'package:project/pages/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -18,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8933C),
       bottomNavigationBar: Container(
@@ -74,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔶 Header with Notification
             Container(
               height: 60,
               width: double.infinity,
@@ -94,8 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
-            // 🔶 Name & Profile
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -115,111 +120,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
-            // 🔶 Main Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView(
                   children: [
-                    // 🔸 My Queue Card
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => MyNotqueue()),
-                        );
+                    StreamBuilder<QuerySnapshot>(
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('queues')
+                              .where('uid', isEqualTo: user?.uid)
+                              .orderBy('timestamp', descending: true)
+                              .limit(1)
+                              .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return _buildNoQueueCard();
+                        }
+                        final data =
+                            snapshot.data!.docs.first.data()
+                                as Map<String, dynamic>;
+                        return _buildQueueCard(data);
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // คอลัมน์ซ้ายเผื่อไว้ใส่รูป
-                            Container(
-                              width: 90,
-                              height: 90,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(Icons.image, color: Colors.grey),
-                            ),
-                            const SizedBox(width: 16),
-                            // คอลัมน์ขวา ข้อมูลคิว
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Center(
-                                    child: Text(
-                                      'ยังไม่มีการจองคิว',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: const [
-                                      Column(
-                                        children: [
-                                          Text('หมายเลขคิวของฉัน'),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            '-',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text('รออีก'),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            '-',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    children: const [
-                                      CircleAvatar(
-                                        radius: 16,
-                                        backgroundColor: Colors.black,
-                                        child: Icon(
-                                          Icons.location_pin,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text('-'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 🔸 เมนูร้านอาหารใกล้ฉัน & ประวัติการจอง
                     Row(
                       children: [
                         Expanded(
@@ -261,6 +185,188 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoQueueCard() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyNotqueue()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.image, color: Colors.grey),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Center(
+                    child: Text(
+                      'ยังไม่มีการจองคิว',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          Text('หมายเลขคิวของฉัน'),
+                          SizedBox(height: 4),
+                          Text(
+                            '-',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text('รออีก'),
+                          SizedBox(height: 4),
+                          Text(
+                            '-',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.black,
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text('-'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQueueCard(Map<String, dynamic> data) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyQueuePage()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                data['logo'],
+                width: 90,
+                height: 90,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data['restaurantName'],
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          const Text('หมายเลขคิวของฉัน'),
+                          const SizedBox(height: 4),
+                          Text(
+                            data['queueId'],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          const Text('รออีก'),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${data['queue']} คิว',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.black,
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${data['location']} ห่างจากคุณ ${data['distance']}',
+                          style: const TextStyle(fontSize: 14),
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
