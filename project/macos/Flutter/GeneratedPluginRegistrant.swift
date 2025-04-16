@@ -9,7 +9,10 @@ import cloud_firestore
 import firebase_auth
 import firebase_core
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 6637e2e (edit name)
 import mobile_scanner
 >>>>>>> parent of 6637e2e (edit name)
 import path_provider_foundation
@@ -19,7 +22,10 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTFirebaseAuthPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAuthPlugin"))
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 6637e2e (edit name)
   MobileScannerPlugin.register(with: registry.registrar(forPlugin: "MobileScannerPlugin"))
 >>>>>>> parent of 6637e2e (edit name)
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))

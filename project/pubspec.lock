@@ -201,7 +201,10 @@ packages:
     source: hosted
     version: "4.1.2"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 6637e2e (edit name)
   intl:
     dependency: "direct main"
     description:
@@ -276,7 +279,10 @@ packages:
     source: hosted
     version: "1.16.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 6637e2e (edit name)
   mobile_scanner:
     dependency: "direct main"
     description:
