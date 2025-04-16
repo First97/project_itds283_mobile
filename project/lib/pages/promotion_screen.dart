@@ -1,100 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PromotionScreen extends StatelessWidget {
-  const PromotionScreen({super.key});
+  final List<Map<String, String>> promotions = [
+    {
+      'restaurant': 'Mo Mo Paradise โม โม พาราไดซ์',
+      'description':
+          'โปรโมชั่น มา4จ่าย3 กับบัตรเครดิต KTC\nสาขาที่ร่วม Terminal21, เซ็นทรัลเวิลด์\nตั้งแต่วันนี้ถึงวันที่ 05/03/2567',
+      'logo': 'assets/momo.png',
+    },
+    {
+      'restaurant': 'Suki Teenoi สุกี้ตี๋น้อย',
+      'description':
+          'ฟรีขนมเบี้ยงตลอดเดือนมีนา\nสาขาที่ร่วม โลตัส คลอง4 ธัญบุรี\nตั้งแต่วันนี้ถึงวันที่ 31/03/2567',
+      'logo': 'assets/suki.png',
+    },
+    {
+      'restaurant': 'Suki Teenoi สุกี้ตี๋น้อย',
+      'description':
+          'โปรโมชั่น มา3 ได้รับพอนสียูสุ ฟรี ไข่บด\nสาขาที่ร่วม เซ็นทรัลพระราม2\nตั้งแต่วันนี้ถึงวันที่ 10/03/2567',
+      'logo': 'assets/suki.png',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF89733),
+      backgroundColor: Color(0xFFF89733),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFD9652B),
-        foregroundColor: Colors.white,
-        title: const Text('โปรโมชั่น'),
+        backgroundColor: Color(0xFFD9652B),
+        title: Text('โปรโมชั่น'),
         centerTitle: true,
-        leading: const BackButton(color: Colors.white),
+        leading: BackButton(color: Colors.white),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream:
-            FirebaseFirestore.instance
-                .collection('promotions')
-                .orderBy('timestamp', descending: true)
-                .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Center(child: Text('เกิดข้อผิดพลาด'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'ยังไม่มีโปรโมชั่นในขณะนี้',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+      body: ListView.builder(
+        padding: EdgeInsets.all(12),
+        itemCount: promotions.length,
+        itemBuilder: (context, index) {
+          final item = promotions[index];
+          return Card(
+            color: Colors.white,
+            margin: EdgeInsets.symmetric(vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.all(12),
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(item['logo']!, width: 50, height: 50),
               ),
-            );
-          }
-
-          final promotions = snapshot.data!.docs;
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: promotions.length,
-            itemBuilder: (context, index) {
-              final data = promotions[index].data() as Map<String, dynamic>;
-
-              final logo = data['logo'] ?? 'assets/default.png';
-              final restaurant = data['restaurant'] ?? 'ไม่ทราบชื่อร้าน';
-              final description = data['description'] ?? '-';
-              final branch = data['branch'] ?? '-';
-              final endDate = data['endDate'] ?? '-';
-
-              return Card(
-                color: Colors.white,
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+              title: Text(
+                item['restaurant']!,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  item['description']!,
+                  style: TextStyle(height: 1.4),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          logo,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (_, __, ___) => const Icon(Icons.store, size: 50),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              restaurant,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(description),
-                            Text('สาขาที่ร่วม: $branch'),
-                            Text('📅 ตั้งแต่วันนี้ถึงวันที่ $endDate'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+              ),
+            ),
           );
         },
       ),

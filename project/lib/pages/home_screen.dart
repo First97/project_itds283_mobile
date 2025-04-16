@@ -1,10 +1,5 @@
-// ... ส่วน import เหมือนเดิม
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import 'package:project/pages/my_queue_page.dart';
 import 'package:project/pages/my_notqueue.dart';
 import 'package:project/pages/nearby_restaurants.dart';
 import 'package:project/pages/search_screen.dart';
@@ -12,13 +7,8 @@ import 'package:project/pages/booking_history.dart';
 import 'package:project/pages/promotion_screen.dart';
 import 'package:project/pages/settings_screen.dart';
 import 'package:project/pages/notification_screen.dart';
-<<<<<<< HEAD
-import 'package:project/pages/qr_scan_screen.dart';
-=======
->>>>>>> parent of 9019dc6 (qr)
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -26,56 +16,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  void _showEditNameDialog(String currentName) {
-    final TextEditingController _controller = TextEditingController(
-      text: currentName,
-    );
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text("แก้ไขชื่อ"),
-            content: TextField(
-              controller: _controller,
-              decoration: const InputDecoration(hintText: "ใส่ชื่อใหม่"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("ยกเลิก"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final uid = FirebaseAuth.instance.currentUser?.uid;
-                  if (uid != null) {
-                    final docRef = FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(uid);
-                    final docSnap = await docRef.get();
-
-                    if (docSnap.exists) {
-                      await docRef.update({'name': _controller.text});
-                    } else {
-                      await docRef.set({
-                        'name': _controller.text,
-                        'email': FirebaseAuth.instance.currentUser?.email,
-                        'photoURL': null,
-                      });
-                    }
-                  }
-                  Navigator.pop(context);
-                },
-                child: const Text("บันทึก"),
-              ),
-            ],
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
       backgroundColor: const Color(0xFFE8933C),
       bottomNavigationBar: Container(
@@ -132,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // 🔶 Header with Notification
             Container(
               height: 60,
               width: double.infinity,
@@ -151,79 +94,132 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            StreamBuilder<DocumentSnapshot>(
-              stream:
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user?.uid)
-                      .snapshots(),
-              builder: (context, snapshot) {
-                final userData = snapshot.data?.data() as Map<String, dynamic>?;
-                final name = userData?['name'] ?? user?.email ?? 'ไม่ทราบชื่อ';
-                final photoURL = userData?['photoURL'];
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+            // 🔶 Name & Profile
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Yanaphat Jumpaburee',
+                    style: GoogleFonts.pacifico(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            name,
-                            style: GoogleFonts.pacifico(
-                              fontSize: 22,
-                              color: Colors.white,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            onPressed: () {
-                              _showEditNameDialog(name);
-                            },
-                          ),
-                        ],
-                      ),
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundImage:
-                            photoURL != null
-                                ? NetworkImage(photoURL)
-                                : const AssetImage('assets/profile.jpg')
-                                    as ImageProvider,
-                      ),
-                    ],
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundImage: AssetImage('assets/profile.jpg'),
                   ),
-                );
-              },
+                ],
+              ),
             ),
+
+            // 🔶 Main Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ListView(
                   children: [
-                    StreamBuilder<QuerySnapshot>(
-                      stream:
-                          FirebaseFirestore.instance
-                              .collection('queues')
-                              .where('uid', isEqualTo: user?.uid)
-                              .orderBy('timestamp', descending: true)
-                              .limit(1)
-                              .snapshots(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return _buildNoQueueCard();
-                        }
-                        final data =
-                            snapshot.data!.docs.first.data()
-                                as Map<String, dynamic>;
-                        return _buildQueueCard(data);
+                    // 🔸 My Queue Card
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => MyNotqueue()),
+                        );
                       },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // คอลัมน์ซ้ายเผื่อไว้ใส่รูป
+                            Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(Icons.image, color: Colors.grey),
+                            ),
+                            const SizedBox(width: 16),
+                            // คอลัมน์ขวา ข้อมูลคิว
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Center(
+                                    child: Text(
+                                      'ยังไม่มีการจองคิว',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: const [
+                                      Column(
+                                        children: [
+                                          Text('หมายเลขคิวของฉัน'),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            '-',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text('รออีก'),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            '-',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: const [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: Colors.black,
+                                        child: Icon(
+                                          Icons.location_pin,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('-'),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
+
+                    // 🔸 เมนูร้านอาหารใกล้ฉัน & ประวัติการจอง
                     Row(
                       children: [
                         Expanded(
@@ -265,189 +261,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoQueueCard() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => MyNotqueue()),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.image, color: Colors.grey),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Center(
-                    child: Text(
-                      'ยังไม่มีการจองคิว',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          Text('หมายเลขคิวของฉัน'),
-                          SizedBox(height: 4),
-                          Text(
-                            '-',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text('รออีก'),
-                          SizedBox(height: 4),
-                          Text(
-                            '-',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.black,
-                        child: Icon(
-                          Icons.location_pin,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Text('-'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQueueCard(Map<String, dynamic> data) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const MyQueuePage()),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                data['logo'],
-                width: 90,
-                height: 90,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    data['restaurantName'],
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          const Text('หมายเลขคิวของฉัน'),
-                          const SizedBox(height: 4),
-                          Text(
-                            data['queueId'],
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          const Text('รออีก'),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${data['queue']}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.black,
-                        child: Icon(
-                          Icons.location_pin,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${data['location']} ห่างจากคุณ ${data['distance']}',
-                          style: const TextStyle(fontSize: 14),
-                          softWrap: true,
-                          overflow: TextOverflow.visible,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ),
             ),
           ],

@@ -3,7 +3,6 @@ import 'login_screen.dart';
 import 'register_screen.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
