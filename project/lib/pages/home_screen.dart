@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:project/pages/my_queue_page.dart';
+import 'package:project/pages/my_queue_page.dart'; // ✅ เพิ่ม
 import 'package:project/pages/my_notqueue.dart';
 import 'package:project/pages/nearby_restaurants.dart';
 import 'package:project/pages/search_screen.dart';
@@ -11,7 +11,7 @@ import 'package:project/pages/booking_history.dart';
 import 'package:project/pages/promotion_screen.dart';
 import 'package:project/pages/settings_screen.dart';
 import 'package:project/pages/notification_screen.dart';
-import 'package:project/pages/qr_scan_screen.dart';
+import 'package:project/pages/qr_scan_screen.dart'; // ✅ เพิ่มให้พาไปหน้า QR
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,52 +21,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-
-  void _showEditNameDialog(String currentName) {
-    final TextEditingController _controller = TextEditingController(
-      text: currentName,
-    );
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text("แก้ไขชื่อ"),
-            content: TextField(
-              controller: _controller,
-              decoration: const InputDecoration(hintText: "ใส่ชื่อใหม่"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("ยกเลิก"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final uid = FirebaseAuth.instance.currentUser?.uid;
-                  if (uid != null) {
-                    final docRef = FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(uid);
-                    final docSnap = await docRef.get();
-
-                    if (docSnap.exists) {
-                      await docRef.update({'name': _controller.text});
-                    } else {
-                      await docRef.set({
-                        'name': _controller.text,
-                        'email': FirebaseAuth.instance.currentUser?.email,
-                        'photoURL': null,
-                      });
-                    }
-                  }
-                  Navigator.pop(context);
-                },
-                child: const Text("บันทึก"),
-              ),
-            ],
-          ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,54 +106,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            StreamBuilder<DocumentSnapshot>(
-              stream:
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user?.uid)
-                      .snapshots(),
-              builder: (context, snapshot) {
-                final userData = snapshot.data?.data() as Map<String, dynamic>?;
-                final name = userData?['name'] ?? user?.email ?? 'ไม่ทราบชื่อ';
-                final photoURL = userData?['photoURL'];
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Yanaphat Jumpaburee',
+                    style: GoogleFonts.pacifico(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            name,
-                            style: GoogleFonts.pacifico(
-                              fontSize: 22,
-                              color: Colors.white,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            onPressed: () {
-                              _showEditNameDialog(name);
-                            },
-                          ),
-                        ],
-                      ),
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundImage:
-                            photoURL != null
-                                ? NetworkImage(photoURL)
-                                : const AssetImage('assets/profile.jpg')
-                                    as ImageProvider,
-                      ),
-                    ],
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundImage: AssetImage('assets/profile.jpg'),
                   ),
-                );
-              },
+                ],
+              ),
             ),
             Expanded(
               child: Padding(
@@ -273,6 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  // ส่วนอื่นไม่แตะเลย เพราะเพื่อนสั่งมาเป๊ะๆ ❤️
 
   Widget _buildNoQueueCard() {
     return GestureDetector(
