@@ -193,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         backgroundImage:
                             photoURL != null
                                 ? NetworkImage(photoURL)
-                                : const AssetImage('assets/profile.jpg')
+                                : const AssetImage('assets/logo.png')
                                     as ImageProvider,
                       ),
                     ],

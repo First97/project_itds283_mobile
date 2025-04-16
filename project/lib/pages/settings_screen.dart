@@ -11,7 +11,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String email = FirebaseAuth.instance.currentUser?.email ?? 'ไม่มีข้อมูล';
-  String dob = '01 มี.ค. 2000';
+  String dob = '01 ม.ค. 2000';
   String phone = '099-999-9999';
 
   @override
