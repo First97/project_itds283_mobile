@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,6 +13,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String email = FirebaseAuth.instance.currentUser?.email ?? 'ไม่มีข้อมูล';
   String dob = '01 มี.ค. 2000';
   String phone = '099-999-9999';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final data = snapshot.data();
+      if (data != null) {
+        setState(() {
+          dob = data['birthdate'] ?? dob;
+          phone = data['phone'] ?? phone;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveProfileField(String key, String value) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        key: value,
+      }, SetOptions(merge: true));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +67,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const Divider(height: 30, thickness: 1),
 
-            // ✅ กดเพื่อแก้ไข
             _settingRow('อีเมลล์', email, onEdit: null),
             const Divider(thickness: 1),
             _settingRow(
               'วัน/เดือน/ปี',
               dob,
               onEdit: () async {
-                final result = await _showEditDialog('วันเกิด', dob);
-                if (result != null) {
-                  setState(() => dob = result);
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now().subtract(
+                    const Duration(days: 365 * 18),
+                  ),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                  // locale: const Locale('th', 'TH'), // 🔸 ลบออกเพื่อป้องกัน crash
+                );
+                if (picked != null) {
+                  final formatted = _formatThaiDate(picked);
+                  setState(() => dob = formatted);
+                  await _saveProfileField('birthdate', formatted);
                 }
               },
             ),
@@ -57,12 +97,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 final result = await _showEditDialog('เบอร์โทรศัพท์', phone);
                 if (result != null) {
                   setState(() => phone = result);
+                  await _saveProfileField('phone', result);
                 }
               },
             ),
             const Divider(thickness: 1),
 
-            // ✅ ปุ่มออกจากระบบ
             ListTile(
               title: const Text(
                 'ออกจากระบบ',
@@ -127,5 +167,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       },
     );
+  }
+
+  String _formatThaiDate(DateTime date) {
+    const months = [
+      'ม.ค.',
+      'ก.พ.',
+      'มี.ค.',
+      'เม.ย.',
+      'พ.ค.',
+      'มิ.ย.',
+      'ก.ค.',
+      'ส.ค.',
+      'ก.ย.',
+      'ต.ค.',
+      'พ.ย.',
+      'ธ.ค.',
+    ];
+    final d = date.day.toString().padLeft(2, '0');
+    final m = months[date.month - 1];
+    final y = date.year + 543;
+    return '$d $m $y';
   }
 }

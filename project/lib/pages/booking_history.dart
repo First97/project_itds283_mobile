@@ -1,107 +1,122 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BookingHistory extends StatelessWidget {
-  final List<Map<String, String>> historyData = [
-    {
-      'restaurant': 'Mo Mo Paradise โม โม พาราไดซ์',
-      'status': 'จองคิวสำเร็จ',
-      'branch': 'Terminal21',
-      'date': '05 มี.ค. 2567',
-      'time': '19:55:22 น.',
-      'logo': 'assets/momo.png',
-    },
-    {
-      'restaurant': 'Mo Mo Paradise โม โม พาราไดซ์',
-      'status': 'ยกเลิกคิว',
-      'branch': 'Terminal21',
-      'date': '05 มี.ค. 2567',
-      'time': '19:29:11 น.',
-      'logo': 'assets/momo.png',
-    },
-    {
-      'restaurant': 'Suki Teenoi สุกี้ตี๋น้อย',
-      'status': 'จองคิวสำเร็จ',
-      'branch': 'เซ็นทรัลพระราม2',
-      'date': '14 ก.พ. 2567',
-      'time': '20:11:39 น.',
-      'logo': 'assets/suki.png',
-    },
-  ];
+  const BookingHistory({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
-      backgroundColor: Color(0xFFF89733),
+      backgroundColor: const Color(0xFFF89733),
       appBar: AppBar(
-        backgroundColor: Color(0xFFD9652B),
-        title: Text('ประวัติการจองคิว'),
+        backgroundColor: const Color(0xFFD9652B),
+        foregroundColor: Colors.white,
+        title: const Text('ประวัติการจองคิว'),
         centerTitle: true,
-        leading: BackButton(color: Colors.white),
+        leading: const BackButton(color: Colors.white),
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(12),
-        itemCount: historyData.length,
-        itemBuilder: (context, index) {
-          final item = historyData[index];
-          return Card(
-            color: Colors.white,
-            margin: EdgeInsets.symmetric(vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      item['logo'] ?? '',
-                      width: 50,
-                      height: 50,
-                      errorBuilder:
-                          (context, error, stackTrace) =>
-                              Icon(Icons.broken_image, size: 50),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['restaurant'] ?? '',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+      body: StreamBuilder<QuerySnapshot>(
+        stream:
+            FirebaseFirestore.instance
+                .collection('history')
+                .where('uid', isEqualTo: user?.uid)
+                .orderBy('timestamp', descending: true)
+                .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text('เกิดข้อผิดพลาด'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text(
+                'ยังไม่มีประวัติการจอง',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            );
+          }
+
+          final historyData = snapshot.data!.docs;
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: historyData.length,
+            itemBuilder: (context, index) {
+              final data = historyData[index].data() as Map<String, dynamic>;
+
+              final logo = data['logo'] ?? 'assets/default.png';
+              final restaurant = data['restaurant'] ?? 'ไม่ทราบชื่อร้าน';
+              final status = data['status'] ?? 'จองคิว';
+              final branch = data['branch'] ?? '-';
+              final date = data['date'] ?? '-';
+              final time = data['time'] ?? '-';
+
+              return Card(
+                color: Colors.white,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          logo,
+                          width: 50,
+                          height: 50,
+                          errorBuilder:
+                              (_, __, ___) =>
+                                  const Icon(Icons.broken_image, size: 50),
                         ),
-                        SizedBox(height: 4),
-                        Text(item['status'] ?? ''),
-                        Text('สาขา ${item['branch']}'),
-                        SizedBox(height: 6),
-                        Row(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 16,
-                              color: Colors.grey[700],
+                            Text(
+                              restaurant,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            SizedBox(width: 4),
-                            Text(item['date'] ?? ''),
-                            SizedBox(width: 16),
-                            Icon(
-                              Icons.access_time,
-                              size: 16,
-                              color: Colors.grey[700],
+                            const SizedBox(height: 4),
+                            Text(status),
+                            Text('สาขา $branch'),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(date),
+                                const SizedBox(width: 16),
+                                const Icon(
+                                  Icons.access_time,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(time),
+                              ],
                             ),
-                            SizedBox(width: 4),
-                            Text(item['time'] ?? ''),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),

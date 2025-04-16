@@ -11,11 +11,11 @@ import 'package:project/pages/booking_history.dart';
 import 'package:project/pages/promotion_screen.dart';
 import 'package:project/pages/settings_screen.dart';
 import 'package:project/pages/notification_screen.dart';
-
+import 'package:project/pages/qr_scan_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  @override
   const HomeScreen({super.key});
+  @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
@@ -28,41 +28,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("แก้ไขชื่อ"),
-        content: TextField(
-          controller: _controller,
-          decoration: const InputDecoration(hintText: "ใส่ชื่อใหม่"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("ยกเลิก"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final uid = FirebaseAuth.instance.currentUser?.uid;
-              if (uid != null) {
-                final docRef =
-                    FirebaseFirestore.instance.collection('users').doc(uid);
-                final docSnap = await docRef.get();
+      builder:
+          (context) => AlertDialog(
+            title: const Text("แก้ไขชื่อ"),
+            content: TextField(
+              controller: _controller,
+              decoration: const InputDecoration(hintText: "ใส่ชื่อใหม่"),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("ยกเลิก"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final uid = FirebaseAuth.instance.currentUser?.uid;
+                  if (uid != null) {
+                    final docRef = FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid);
+                    final docSnap = await docRef.get();
 
-                if (docSnap.exists) {
-                  await docRef.update({'name': _controller.text});
-                } else {
-                  await docRef.set({
-                    'name': _controller.text,
-                    'email': FirebaseAuth.instance.currentUser?.email,
-                    'photoURL': null,
-                  });
-                }
-              }
-              Navigator.pop(context);
-            },
-            child: const Text("บันทึก"),
+                    if (docSnap.exists) {
+                      await docRef.update({'name': _controller.text});
+                    } else {
+                      await docRef.set({
+                        'name': _controller.text,
+                        'email': FirebaseAuth.instance.currentUser?.email,
+                        'photoURL': null,
+                      });
+                    }
+                  }
+                  Navigator.pop(context);
+                },
+                child: const Text("บันทึก"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -95,6 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => SearchScreen()),
               );
+            } else if (index == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => QRScanScreen()),
+              );
             } else if (index == 3) {
               Navigator.push(
                 context,
@@ -114,48 +121,53 @@ class _HomeScreenState extends State<HomeScreen> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
-            BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: ''),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.qr_code_scanner),
+              label: '',
+            ),
             BottomNavigationBarItem(icon: Icon(Icons.sell), label: ''),
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
           ],
         ),
       ),
       body: SafeArea(
-        child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(user?.uid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            final userData = snapshot.data?.data() as Map<String, dynamic>?;
-            final name = userData?['name'] ?? user?.email ?? 'ไม่ทราบชื่อ';
-            final photoURL = userData?['photoURL'];
-
-            return Column(
-              children: [
-                Container(
-                  height: 60,
-                  width: double.infinity,
-                  color: const Color(0xFFD9652B),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.notifications, color: Colors.white),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => NotificationScreen()),
-                          );
-                        },
-                      ),
-                    ],
+        child: Column(
+          children: [
+            Container(
+              height: 60,
+              width: double.infinity,
+              color: const Color(0xFFD9652B),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => NotificationScreen()),
+                      );
+                    },
                   ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ],
+              ),
+            ),
+            StreamBuilder<DocumentSnapshot>(
+              stream:
+                  FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user?.uid)
+                      .snapshots(),
+              builder: (context, snapshot) {
+                final userData = snapshot.data?.data() as Map<String, dynamic>?;
+                final name = userData?['name'] ?? user?.email ?? 'ไม่ทราบชื่อ';
+                final photoURL = userData?['photoURL'];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -178,65 +190,85 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       CircleAvatar(
                         radius: 28,
-                        backgroundImage: photoURL != null
-                            ? NetworkImage(photoURL)
-                            : const AssetImage('assets/profile.jpg')
-                                as ImageProvider,
+                        backgroundImage:
+                            photoURL != null
+                                ? NetworkImage(photoURL)
+                                : const AssetImage('assets/profile.jpg')
+                                    as ImageProvider,
                       ),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: ListView(
+                );
+              },
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ListView(
+                  children: [
+                    StreamBuilder<QuerySnapshot>(
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('queues')
+                              .where('uid', isEqualTo: user?.uid)
+                              .orderBy('timestamp', descending: true)
+                              .limit(1)
+                              .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return _buildNoQueueCard();
+                        }
+                        final data =
+                            snapshot.data!.docs.first.data()
+                                as Map<String, dynamic>;
+                        return _buildQueueCard(data);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
                       children: [
-                        _buildNoQueueCard(),
-                        const SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => NearbyRestaurants()),
-                                  );
-                                },
-                                child: _menuBox(
-                                  icon: Icons.location_on,
-                                  label: 'ร้านอาหารใกล้ฉัน',
-                                  iconSize: 150,
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => NearbyRestaurants(),
                                 ),
-                              ),
+                              );
+                            },
+                            child: _menuBox(
+                              icon: Icons.location_on,
+                              label: 'ร้านอาหารใกล้ฉัน',
+                              iconSize: 150,
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => BookingHistory()),
-                                  );
-                                },
-                                child: _menuBox(
-                                  icon: Icons.access_time,
-                                  label: 'ประวัติการจองคิว',
-                                  iconSize: 150,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BookingHistory(),
                                 ),
-                              ),
+                              );
+                            },
+                            child: _menuBox(
+                              icon: Icons.access_time,
+                              label: 'ประวัติการจองคิว',
+                              iconSize: 150,
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -257,6 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: 90,
@@ -286,14 +319,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text('หมายเลขคิวของฉัน'),
                           SizedBox(height: 4),
-                          Text('-', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            '-',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                       Column(
                         children: [
                           Text('รออีก'),
                           SizedBox(height: 4),
-                          Text('-', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            '-',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ],
@@ -304,11 +343,109 @@ class _HomeScreenState extends State<HomeScreen> {
                       CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.black,
-                        child: Icon(Icons.location_pin,
-                            color: Colors.white, size: 20),
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       SizedBox(width: 8),
                       Text('-'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQueueCard(Map<String, dynamic> data) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MyQueuePage()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                data['logo'],
+                width: 90,
+                height: 90,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    data['restaurantName'],
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          const Text('หมายเลขคิวของฉัน'),
+                          const SizedBox(height: 4),
+                          Text(
+                            data['queueId'],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          const Text('รออีก'),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${data['queue']}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.black,
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${data['location']} ห่างจากคุณ ${data['distance']}',
+                          style: const TextStyle(fontSize: 14),
+                          softWrap: true,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -337,9 +474,11 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Icon(icon, size: iconSize, color: const Color(0xFFD9652B)),
           const SizedBox(height: 12),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );
