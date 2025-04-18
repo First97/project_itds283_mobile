@@ -25,6 +25,21 @@ class _BookingPageState extends State<BookingPage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    // ✅ ตรวจสอบว่าผู้ใช้งานมีคิวที่รออยู่หรือไม่
+    final existing =
+        await FirebaseFirestore.instance
+            .collection('queues')
+            .where('uid', isEqualTo: user.uid)
+            .limit(1)
+            .get();
+
+    if (existing.docs.isNotEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('คุณมีคิวที่รออยู่แล้ว')));
+      return;
+    }
+
     final counterRef = FirebaseFirestore.instance
         .collection('counters')
         .doc('queue');
@@ -141,13 +156,14 @@ class _BookingPageState extends State<BookingPage> {
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
                 children:
-                    seatOptions.map((Map<String, dynamic> option) {
+                    seatOptions.map((option) {
                       final isSelected = selectedSeats == option['value'];
                       return GestureDetector(
-                        onTap:
-                            () => setState(
-                              () => selectedSeats = option['value'] as int?,
-                            ),
+                        onTap: () {
+                          setState(() {
+                            selectedSeats = option['value'] as int?;
+                          });
+                        },
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -173,7 +189,7 @@ class _BookingPageState extends State<BookingPage> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                option['label'],
+                                option['label'] as String,
                                 style: TextStyle(
                                   color:
                                       isSelected

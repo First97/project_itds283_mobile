@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'pages/auth_screen.dart';
-import 'pages/home_screen.dart'; // ✅ เรียกใช้งาน HomeScreen
+import 'pages/home_screen.dart';
 import 'pages/my_queue_page.dart';
 import 'pages/settings_screen.dart';
 
@@ -11,11 +11,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await initializeDateFormatting('th_TH', null);
-  runApp(const MyApp()); // ✅ เพิ่ม const
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // ✅ เพิ่ม constructor แบบ const
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
