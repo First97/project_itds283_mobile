@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,7 +13,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String email = FirebaseAuth.instance.currentUser?.email ?? 'ไม่มีข้อมูล';
   String dob = '01 ม.ค. 2000';
-  String phone = '099-999-9999';
+  String phone = '0999999999';
 
   @override
   void initState() {
@@ -66,7 +67,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const Divider(height: 30, thickness: 1),
-
             _settingRow('อีเมลล์', email, onEdit: null),
             const Divider(thickness: 1),
             _settingRow(
@@ -80,7 +80,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   firstDate: DateTime(1900),
                   lastDate: DateTime.now(),
-                  // locale: const Locale('th', 'TH'), // 🔸 ลบออกเพื่อป้องกัน crash
                 );
                 if (picked != null) {
                   final formatted = _formatThaiDate(picked);
@@ -94,7 +93,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'หมายเลขโทรศัพท์',
               phone,
               onEdit: () async {
-                final result = await _showEditDialog('เบอร์โทรศัพท์', phone);
+                final result = await _showEditDialog(
+                  'เบอร์โทรศัพท์',
+                  phone,
+                  isPhone: true,
+                );
                 if (result != null) {
                   setState(() => phone = result);
                   await _saveProfileField('phone', result);
@@ -102,7 +105,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             const Divider(thickness: 1),
-
             ListTile(
               title: const Text(
                 'ออกจากระบบ',
@@ -143,7 +145,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<String?> _showEditDialog(String title, String initialValue) async {
+  Future<String?> _showEditDialog(
+    String title,
+    String initialValue, {
+    bool isPhone = false,
+  }) async {
     final controller = TextEditingController(text: initialValue);
     return showDialog<String>(
       context: context,
@@ -153,6 +159,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           content: TextField(
             controller: controller,
             decoration: InputDecoration(hintText: title),
+            keyboardType: isPhone ? TextInputType.number : TextInputType.text,
+            inputFormatters:
+                isPhone ? [FilteringTextInputFormatter.digitsOnly] : [],
           ),
           actions: [
             TextButton(
