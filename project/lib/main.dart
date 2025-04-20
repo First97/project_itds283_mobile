@@ -23,10 +23,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'First Queue App',
       theme: ThemeData(fontFamily: 'Kanit', primarySwatch: Colors.orange),
-      home: const AuthScreen(), // ✅ เพิ่ม const
-      // ✅ เส้นทางนำทางหลัก
+      home: const AuthScreen(),
+
       routes: {
-        '/home': (context) => const HomeScreen(), // ✅ เพิ่ม const
+        '/home': (context) => const HomeScreen(),
         '/myQueue': (context) => const MyQueuePage(),
         '/settings': (context) => const SettingsScreen(),
       },

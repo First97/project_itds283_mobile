@@ -161,7 +161,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             decoration: InputDecoration(hintText: title),
             keyboardType: isPhone ? TextInputType.number : TextInputType.text,
             inputFormatters:
-                isPhone ? [FilteringTextInputFormatter.digitsOnly] : [],
+                isPhone
+                    ? [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ]
+                    : [],
           ),
           actions: [
             TextButton(
@@ -169,7 +174,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: const Text('ยกเลิก'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              onPressed: () {
+                if (isPhone && controller.text.length != 10) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('กรุณากรอกเบอร์โทรให้ครบ 10 หลัก'),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.pop(context, controller.text.trim());
+              },
               child: const Text('บันทึก'),
             ),
           ],

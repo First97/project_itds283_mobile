@@ -25,7 +25,7 @@ class _BookingPageState extends State<BookingPage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    // ✅ ตรวจสอบว่าผู้ใช้งานมีคิวที่รออยู่หรือไม่
+    // ตรวจสอบว่าผู้ใช้งานมีคิวที่รออยู่หรือไม่
     final existing =
         await FirebaseFirestore.instance
             .collection('queues')

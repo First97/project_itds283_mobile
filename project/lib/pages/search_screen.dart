@@ -60,7 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          // ✅ เงื่อนไข: ยังไม่พิมพ์อะไร = แสดงข้อความ
+          // เงื่อนไข: ยังไม่พิมพ์อะไร = แสดงข้อความ
           if (searchQuery.isEmpty)
             const Expanded(
               child: Center(

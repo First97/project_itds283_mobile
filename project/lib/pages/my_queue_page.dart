@@ -51,7 +51,7 @@ class MyQueuePage extends StatelessWidget {
           final queueDoc = snapshot.data!.docs.first;
           final data = queueDoc.data() as Map<String, dynamic>;
 
-          // ✅ ตรวจสอบและสร้างแจ้งเตือน + ประวัติการจองทันทีหากยังไม่เคยบันทึก
+          // ตรวจสอบและสร้างแจ้งเตือน + ประวัติการจองทันทีหากยังไม่เคยบันทึก
           createAutoNotificationAndHistory(data);
 
           final date = DateTime.parse(data['timestamp']);
